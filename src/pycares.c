@@ -151,6 +151,7 @@ init_pycares(void)
     PyModule_AddIntConstant(pycares, "QUERY_TYPE_SOA", T_SOA);
     PyModule_AddIntConstant(pycares, "QUERY_TYPE_SRV", T_SRV);
     PyModule_AddIntConstant(pycares, "QUERY_TYPE_TXT", T_TXT);
+    PyModule_AddIntConstant(pycares, "QUERY_TYPE_ANY", T_ANY);
 
     PyCaresModule_AddType(pycares, "Channel", &ChannelType);
 

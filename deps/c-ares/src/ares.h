@@ -542,6 +542,14 @@ struct ares_soa_reply {
   unsigned int minttl;
 };
 
+struct ares_any_reply {
+  struct ares_any_reply *next;
+  char                  type[16];
+  char                  *name;
+  unsigned char         *data;
+  size_t                length;
+};
+
 /*
 ** Parse the buffer, starting at *abuf and of length alen bytes, previously
 ** obtained from an ares_search call.  Put the results in *host, if nonnull.
@@ -578,8 +586,8 @@ CARES_EXTERN int ares_parse_srv_reply(const unsigned char* abuf,
                                       struct ares_srv_reply** srv_out);
 
 CARES_EXTERN int ares_parse_mx_reply(const unsigned char* abuf,
-                                      int alen,
-                                      struct ares_mx_reply** mx_out);
+                                     int alen,
+                                     struct ares_mx_reply** mx_out);
 
 CARES_EXTERN int ares_parse_txt_reply(const unsigned char* abuf,
                                       int alen,
@@ -590,8 +598,12 @@ CARES_EXTERN int ares_parse_naptr_reply(const unsigned char* abuf,
                                         struct ares_naptr_reply** naptr_out);
 
 CARES_EXTERN int ares_parse_soa_reply(const unsigned char* abuf,
-				      int alen,
-				      struct ares_soa_reply** soa_out);
+                                      int alen,
+                                      struct ares_soa_reply** soa_out);
+
+CARES_EXTERN int ares_parse_any_reply(const unsigned char* abuf,
+                                      int alen,
+                                      struct ares_any_reply ** any_reply);
 
 CARES_EXTERN void ares_free_string(void *str);
 

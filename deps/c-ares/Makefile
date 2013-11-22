@@ -59,6 +59,7 @@ CARES_OBJS += src/ares_parse_ptr_reply.o
 CARES_OBJS += src/ares_parse_soa_reply.o
 CARES_OBJS += src/ares_parse_srv_reply.o
 CARES_OBJS += src/ares_parse_txt_reply.o
+CARES_OBJS += src/ares_parse_any_reply.o
 CARES_OBJS += src/ares_process.o
 CARES_OBJS += src/ares_query.o
 CARES_OBJS += src/ares_search.o

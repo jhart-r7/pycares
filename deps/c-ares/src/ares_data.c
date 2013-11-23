@@ -200,6 +200,7 @@ void *ares_malloc_data(ares_datatype type)
         ptr->data.soa_reply.minttl = 0;
 
       case ARES_DATATYPE_ANY_REPLY:
+        ptr->data.any_reply.next = NULL;
         ptr->data.any_reply.name = NULL;
         ptr->data.any_reply.data = NULL;
         ptr->data.any_reply.length = 0;

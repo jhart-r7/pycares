@@ -198,13 +198,16 @@ int ares_parse_any_reply(const unsigned char *abuf, int alen,
 
           /* allocate result struct */
           struct ares_soa_reply *soa = ares_malloc_data(ARES_DATATYPE_SOA_REPLY);
-          if (!soa)
-            return ARES_ENOMEM;
+          if (!soa) {
+            status = ARES_ENOMEM;
+            break;
+          }
 
           /* nsname */
           status = ares__expand_name_for_response(aptr2, abuf, alen, &soa->nsname, &len);
           if (status != ARES_SUCCESS) {
             ares_free_data(soa);
+            status = ARES_EBADRESP;
             break;
           }
           aptr2 += len;
@@ -213,6 +216,7 @@ int ares_parse_any_reply(const unsigned char *abuf, int alen,
           status = ares__expand_name_for_response(aptr2, abuf, alen, &soa->hostmaster, &len);
           if (status != ARES_SUCCESS) {
             ares_free_data(soa);
+            status = ARES_EBADRESP;
             break;
           }
           aptr2 += len;
@@ -220,7 +224,8 @@ int ares_parse_any_reply(const unsigned char *abuf, int alen,
           /* integer fields */
           if (aptr2 + 5 * 4 > abuf + alen) {
             ares_free_data(soa);
-            return ARES_EBADRESP;
+            status = ARES_EBADRESP;
+            break;
           }
           soa->serial = DNS__32BIT(aptr2 + 0 * 4);
           soa->refresh = DNS__32BIT(aptr2 + 1 * 4);

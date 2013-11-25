@@ -247,6 +247,42 @@ int ares_parse_any_reply(const unsigned char *abuf, int alen,
           ares_free_data(soa);
         }
 
+      /* Check if we are really looking at a SRV record */
+      else if (rr_class == C_IN && rr_type == T_SRV)
+        {
+          /* parse the SRV record itself */
+          if (rr_len >= 6)
+            {
+              const unsigned char *aptr2 = aptr;
+
+              /* Allocate storage for this SRV answer appending it to the list */
+              struct ares_srv_reply *srv = ares_malloc_data(ARES_DATATYPE_SRV_REPLY);
+
+              srv->priority = DNS__16BIT(aptr2);
+              aptr2 += sizeof(unsigned short);
+              srv->weight = DNS__16BIT(aptr2);
+              aptr2 += sizeof(unsigned short);
+              srv->port = DNS__16BIT(aptr2);
+              aptr2 += sizeof(unsigned short);
+
+              status = ares_expand_name (aptr2, abuf, alen, &srv->host, &len);
+              if (status != ARES_SUCCESS)
+                break;
+
+              snprintf(any_reply_current->type, 16, "SRV");
+              any_reply_current->name = rr_name;
+
+              size_t outmaxlen = strlen(srv->host) + 2*3 + 5;
+              any_reply_current->data = malloc(outmaxlen);
+              snprintf(any_reply_current->data, outmaxlen, "%u %u %u %s",
+                srv->priority, srv->weight, srv->port, srv->host
+              );
+              any_reply_current->length = strlen(any_reply_current->data);
+
+              ares_free_data(srv);
+            }
+        }
+
       /* Check if we are really looking at a MX record */
       else if (rr_class == C_IN && rr_type == T_MX)
         {
@@ -287,6 +323,21 @@ int ares_parse_any_reply(const unsigned char *abuf, int alen,
             break;
 
           snprintf(any_reply_current->type, 16, "NS");
+          any_reply_current->name = rr_name;
+
+          any_reply_current->length = strlen(rr_data);
+          any_reply_current->data = rr_data;
+        }
+
+      else if (rr_class == C_IN && rr_type == T_PTR)
+        {
+          /* Decode the RR data and set hostname to it. */
+          status = ares__expand_name_for_response(aptr, abuf, alen, &rr_data,
+                                                  &len);
+          if (status != ARES_SUCCESS)
+            break;
+
+          snprintf(any_reply_current->type, 16, "PTR");
           any_reply_current->name = rr_name;
 
           any_reply_current->length = strlen(rr_data);

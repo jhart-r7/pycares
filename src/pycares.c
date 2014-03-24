@@ -51,10 +51,40 @@ pycares_func_reverse_address(PyObject *obj, PyObject *args)
     return Py_BuildValue("s", name);
 }
 
+static PyObject *
+pycares_func_parse_raw(PyObject *obj, PyObject *args)
+{
+    const char *dnsbuf;
+    Py_ssize_t size;
+    PyObject *inbuf, *callback, *ret;
+    ret = NULL;
+
+    if (!PyArg_ParseTuple(args, "OO:parse_raw", &inbuf, &callback)) {
+        return NULL;
+    }
+
+    dnsbuf = PyString_AsString(inbuf);
+    size = PyString_Size(inbuf);
+
+    if (!PyCallable_Check(callback)) {
+        PyErr_SetString(PyExc_TypeError, "a callable is required");
+        goto finally;
+    }
+
+    Py_INCREF(callback);
+    ret = Py_None;
+    //query_any_cb(void *arg, int status, int timeouts, unsigned char *answer_buf, int answer_len)
+    query_any_cb(callback, ARES_SUCCESS, 0, (unsigned char *) dnsbuf, size);
+
+finally:
+    Py_XINCREF(ret);
+    return ret;
+}
 
 static PyMethodDef
 pycares_methods[] = {
     { "reverse_address", (PyCFunction)pycares_func_reverse_address, METH_VARARGS, "Get reverse representation of an IP address" },
+    { "parse_raw", (PyCFunction)pycares_func_parse_raw, METH_VARARGS, "Parse a raw DNS response buffer" },
     { NULL }
 };
 

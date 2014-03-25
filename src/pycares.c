@@ -77,9 +77,8 @@ pycares_func_parse_raw(PyObject *obj, PyObject *args)
     query_any_cb(callback, ARES_SUCCESS, 0, (unsigned char *) dnsbuf, size);
 
 finally:
-    Py_DECREF(dnsbuf);
-    Py_DECREF(callback);
     Py_XINCREF(ret);
+    Py_DECREF(inbuf);
     return ret;
 }
 

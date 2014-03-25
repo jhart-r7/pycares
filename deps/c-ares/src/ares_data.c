@@ -198,6 +198,7 @@ void *ares_malloc_data(ares_datatype type)
         ptr->data.soa_reply.retry = 0;
         ptr->data.soa_reply.expire = 0;
         ptr->data.soa_reply.minttl = 0;
+        break;
 
       case ARES_DATATYPE_ANY_REPLY:
         ptr->data.any_reply.next = NULL;
@@ -206,7 +207,7 @@ void *ares_malloc_data(ares_datatype type)
         ptr->data.any_reply.length = 0;
         memset(ptr->data.any_reply.type, 0,
                sizeof(ptr->data.any_reply.type));
-	break;
+        break;
 
       default:
         free(ptr);

@@ -725,7 +725,7 @@ query_any_cb(void *arg, int status, int timeouts, unsigned char *answer_buf, int
     int parse_status;
     struct ares_any_reply *any_reply = NULL;
     struct ares_any_reply *any_reply_current = NULL;
-    PyObject *dns_result, *dns_record, *errorno, *result, *callback;
+    PyObject *dns_result, *dns_record, *errorno, *result, *callback, *tmp;
 
     callback = (PyObject *)arg;
     ASSERT(callback);
@@ -760,9 +760,15 @@ query_any_cb(void *arg, int status, int timeouts, unsigned char *answer_buf, int
     any_reply_current = any_reply;
     while (any_reply_current) {
         dns_record = PyList_New(0);
-        PyList_Append(dns_record, Py_BuildValue("s", any_reply_current->name));
-        PyList_Append(dns_record, Py_BuildValue("s", any_reply_current->type));
-        PyList_Append(dns_record, Py_BuildValue("s#", any_reply_current->data, any_reply_current->length));
+        tmp = Py_BuildValue("s", any_reply_current->name);
+        PyList_Append(dns_record, tmp);
+        Py_DECREF(tmp);
+        tmp = Py_BuildValue("s", any_reply_current->type);
+        PyList_Append(dns_record, tmp);
+        Py_DECREF(tmp);
+        tmp = Py_BuildValue("s#", any_reply_current->data, any_reply_current->length);
+        PyList_Append(dns_record, tmp);
+        Py_DECREF(tmp);
         PyList_Append(dns_result, dns_record);
         Py_DECREF(dns_record);
         any_reply_current = any_reply_current->next;

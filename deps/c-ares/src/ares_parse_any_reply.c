@@ -59,11 +59,6 @@ int ares_parse_any_reply(const unsigned char *abuf, int alen,
   struct ares_any_reply *any_reply_local;
   struct ares_any_reply *any_reply_current;
 
-  any_reply_local = ares_malloc_data(ARES_DATATYPE_ANY_REPLY);
-  // memset(any_reply_local, 0, sizeof(struct ares_any_reply));
-  *any_reply = any_reply_local;
-  any_reply_current = any_reply_local;
-
   /* Give up if abuf doesn't have room for a header. */
   if (alen < HFIXEDSZ)
     return ARES_EBADRESP;
@@ -86,6 +81,11 @@ int ares_parse_any_reply(const unsigned char *abuf, int alen,
       return ARES_EBADRESP;
     }
   aptr += len + QFIXEDSZ;
+
+  any_reply_local = ares_malloc_data(ARES_DATATYPE_ANY_REPLY);
+  // memset(any_reply_local, 0, sizeof(struct ares_any_reply));
+  *any_reply = any_reply_local;
+  any_reply_current = any_reply_local;
 
   /* Examine each answer resource record (RR) in turn. */
   for (i = 0; i < (int)ancount + (int)nscount + (int)arcount; i++)

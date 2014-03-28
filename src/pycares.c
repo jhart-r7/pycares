@@ -4,7 +4,6 @@
 #include "cares.c"
 #include "errno.c"
 
-
 /* adapted from ares_gethostbyaddr.c */
 static PyObject *
 pycares_func_reverse_address(PyObject *obj, PyObject *args)
@@ -71,14 +70,13 @@ pycares_func_parse_raw(PyObject *obj, PyObject *args)
         goto finally;
     }
 
-    Py_INCREF(callback);
-    ret = Py_None;
     //query_any_cb(void *arg, int status, int timeouts, unsigned char *answer_buf, int answer_len)
     query_any_cb(callback, ARES_SUCCESS, 0, (unsigned char *) dnsbuf, size);
 
 finally:
+    ret = Py_None;
     Py_XINCREF(ret);
-    Py_DECREF(inbuf);
+    // Py_DECREF(inbuf);
     return ret;
 }
 

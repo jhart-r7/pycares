@@ -75,6 +75,7 @@ int ares_parse_any_reply(const unsigned char *abuf, int alen,
   status = ares__expand_name_for_response(aptr, abuf, alen, &hostname, &len);
   if (status != ARES_SUCCESS)
     return status;
+
   if (aptr + len + QFIXEDSZ > abuf + alen)
     {
       free(hostname);
@@ -90,6 +91,11 @@ int ares_parse_any_reply(const unsigned char *abuf, int alen,
   /* Examine each answer resource record (RR) in turn. */
   for (i = 0; i < (int)ancount + (int)nscount + (int)arcount; i++)
     {
+      if (memcmp(aptr+1, "\x00\x29", 2) == 0) {
+        // printf("TYPE OPT (EDNS for example) -> cant parse\n");
+        break;
+      }
+
       /* Decode the RR up to the data field. */
       status = ares__expand_name_for_response(aptr, abuf, alen, &rr_name, &len);
       if (status != ARES_SUCCESS)

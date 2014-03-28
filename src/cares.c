@@ -778,16 +778,18 @@ query_any_cb(void *arg, int status, int timeouts, unsigned char *answer_buf, int
     Py_INCREF(Py_None);
 
 callback:
+    Py_INCREF(callback);
     result = PyObject_CallFunctionObjArgs(callback, dns_result, errorno, NULL);
     if (result == NULL) {
         PyErr_WriteUnraisable(callback);
     }
+    Py_DECREF(callback);
+
     Py_XDECREF(result);
     Py_DECREF(dns_result);
     Py_DECREF(errorno);
     if (any_reply) ares_free_data(any_reply);
 
-    Py_DECREF(callback);
     PyGILState_Release(gstate);
 }
 

@@ -720,6 +720,82 @@ callback:
 
 
 static void
+query_any_cb(void *arg, int status, int timeouts, unsigned char *answer_buf, int answer_len)
+{
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    int parse_status;
+    struct ares_any_reply *any_reply = NULL;
+    struct ares_any_reply *any_reply_current = NULL;
+    PyObject *dns_result, *dns_record, *errorno, *result, *callback, *tmp;
+
+    callback = (PyObject *)arg;
+    ASSERT(callback);
+
+    if (status != ARES_SUCCESS) {
+        errorno = PyInt_FromLong((long)status);
+        dns_result = Py_None;
+        Py_INCREF(Py_None);
+        goto callback;
+    }
+
+    parse_status = ares_parse_any_reply(answer_buf, answer_len, &any_reply);
+    if (parse_status != ARES_SUCCESS) {
+        errorno = PyInt_FromLong((long)parse_status);
+        dns_result = Py_None;
+        Py_INCREF(Py_None);
+        goto callback;
+    }
+
+    dns_result = PyList_New(0);
+
+    if (!dns_result) {
+        PyErr_NoMemory();
+        PyErr_WriteUnraisable(Py_None);
+        Py_XDECREF(dns_result);
+        errorno = PyInt_FromLong((long)ARES_ENOMEM);
+        dns_result = Py_None;
+        Py_INCREF(Py_None);
+        goto callback;
+    }
+
+    any_reply_current = any_reply;
+    while (any_reply_current) {
+        dns_record = PyList_New(0);
+        tmp = Py_BuildValue("s", any_reply_current->name);
+        PyList_Append(dns_record, tmp);
+        Py_DECREF(tmp);
+        tmp = Py_BuildValue("s", any_reply_current->type);
+        PyList_Append(dns_record, tmp);
+        Py_DECREF(tmp);
+        tmp = Py_BuildValue("s#", any_reply_current->data, any_reply_current->length);
+        PyList_Append(dns_record, tmp);
+        Py_DECREF(tmp);
+        PyList_Append(dns_result, dns_record);
+        Py_DECREF(dns_record);
+        any_reply_current = any_reply_current->next;
+    }
+
+    errorno = Py_None;
+    Py_INCREF(Py_None);
+
+callback:
+    Py_INCREF(callback);
+    result = PyObject_CallFunctionObjArgs(callback, dns_result, errorno, NULL);
+    if (result == NULL) {
+        PyErr_WriteUnraisable(callback);
+    }
+    Py_DECREF(callback);
+
+    Py_XDECREF(result);
+    Py_DECREF(dns_result);
+    Py_DECREF(errorno);
+    if (any_reply) ares_free_data(any_reply);
+
+    PyGILState_Release(gstate);
+}
+
+
+static void
 host_cb(void *arg, int status, int timeouts, struct hostent *hostent)
 {
     PyGILState_STATE gstate = PyGILState_Ensure();
@@ -933,6 +1009,12 @@ Channel_func_query(Channel *self, PyObject *args)
         case T_TXT:
         {
             ares_query(self->channel, name, C_IN, T_TXT, &query_txt_cb, (void *)callback);
+            break;
+        }
+
+        case T_ANY:
+        {
+            ares_query(self->channel, name, C_IN, T_ANY, &query_any_cb, (void *)callback);
             break;
         }
 

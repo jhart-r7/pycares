@@ -121,6 +121,43 @@ class DNSTest(unittest.TestCase):
         self.assertEqual(self.count, 3)
         self.assertEqual(self.errorno_count, 0)
 
+    def test_query_any(self):
+        self.result, self.errorno = None, None
+        def cb(result, errorno):
+            self.result, self.errorno = result, errorno
+        self.channel.query('google.com', pycares.QUERY_TYPE_ANY, cb)
+        self.wait()
+        self.assertEqual(self.errorno, None)
+        for r in self.result:
+            self.assertEqual(type(r), pycares.ares_query_any_result)
+            self.assertNotEqual(r.host, None)
+            self.assertTrue(r.ttl >= 0)
+
+    def test_query_any_bad(self):
+        self.result, self.errorno = None, None
+        def cb(result, errorno):
+            self.result, self.errorno = result, errorno
+        self.channel.query('hgf8g2od29hdohid.com', pycares.QUERY_TYPE_ANY, cb)
+        self.wait()
+        self.assertEqual(self.result, None)
+        self.assertEqual(self.errorno, pycares.errno.ARES_ENOTFOUND)
+
+    def test_query_any_rotate(self):
+        self.result, self.errorno = None, None
+        self.errorno_count, self.count = 0, 0
+        def cb(result, errorno):
+            self.result, self.errorno = result, errorno
+            if errorno:
+                self.errorno_count += 1
+            self.count += 1
+        self.channel = pycares.Channel(timeout=1.0, tries=1, rotate=True)
+        self.channel.query('google.com', pycares.QUERY_TYPE_ANY, cb)
+        self.channel.query('google.com', pycares.QUERY_TYPE_ANY, cb)
+        self.channel.query('google.com', pycares.QUERY_TYPE_ANY, cb)
+        self.wait()
+        self.assertEqual(self.count, 3)
+        self.assertEqual(self.errorno_count, 0)
+
     def test_query_aaaa(self):
         self.result, self.errorno = None, None
         def cb(result, errorno):

@@ -162,6 +162,10 @@ init_pycares(void)
         PyStructSequence_InitType(&AresQuerySOAResultType, &ares_query_soa_result_desc);
         PyCaresModule_AddType(pycares, "ares_query_soa_result", &AresQuerySOAResultType);
     }
+    if (AresQueryANYResultType.tp_name == 0) {
+        PyStructSequence_InitType(&AresQueryANYResultType, &ares_query_any_result_desc);
+        PyCaresModule_AddType(pycares, "ares_query_any_result", &AresQueryANYResultType);
+    }
     if (AresQuerySRVResultType.tp_name == 0) {
         PyStructSequence_InitType(&AresQuerySRVResultType, &ares_query_srv_result_desc);
         PyCaresModule_AddType(pycares, "ares_query_srv_result", &AresQuerySRVResultType);

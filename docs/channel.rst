@@ -109,6 +109,7 @@
             - ``QUERY_TYPE_SOA``
             - ``QUERY_TYPE_SRV``
             - ``QUERY_TYPE_TXT``
+            - ``QUERY_TYPE_ANY``
 
         Callback signature: ``callback(result, errorno)``. The result type varies depending on the
         query type:
@@ -172,6 +173,12 @@
 
               - text
               - ttl
+
+            - ANY: ``ares_query_any_result``, fields:
+
+              - host
+              - name
+              - data
 
         .. note::
             TTL is not implemented for CNAME, NS and PTR), so it's set to None.

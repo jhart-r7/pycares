@@ -4,6 +4,7 @@ import select
 import socket
 import sys
 import unittest
+import re
 
 import pycares
 
@@ -130,9 +131,9 @@ class DNSTest(unittest.TestCase):
         self.assertEqual(self.errorno, None)
         for r in self.result:
             self.assertEqual(type(r), pycares.ares_query_any_result)
-            self.assertNotEqual(r.name, None)
-            self.assertNotEqual(r.type, None)
-            self.assertNotEqual(r.data, None)
+            self.assertTrue(re.match(r"(.*)google\.com", r.name))
+            self.assertTrue(re.match(r"(MX|A|SOA|NS|TXT)", r.type))
+            self.assertTrue(re.match(r"(.*google\.com|(?:[0-9]{1,3}\.){3}[0-9]{1,3})", r.data))
             self.assertTrue(r.length > 0)
 
     def test_query_any_bad(self):

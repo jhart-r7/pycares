@@ -130,8 +130,7 @@ class DNSTest(unittest.TestCase):
         self.assertEqual(self.errorno, None)
         for r in self.result:
             self.assertEqual(type(r), pycares.ares_query_any_result)
-            self.assertNotEqual(r.host, None)
-            self.assertTrue(r.ttl >= 0)
+            self.assertNotEqual(r.data, None)
 
     def test_query_any_bad(self):
         self.result, self.errorno = None, None

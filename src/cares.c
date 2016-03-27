@@ -766,7 +766,8 @@ query_any_cb(void *arg, int status, int timeouts, unsigned char *answer_buf, int
         }
         PyStructSequence_SET_ITEM(tmp, 0, Py_BuildValue("s", any_reply_current->name));
         PyStructSequence_SET_ITEM(tmp, 1, Py_BuildValue("s", any_reply_current->type));
-        PyStructSequence_SET_ITEM(tmp, 2, Py_BuildValue("s", any_reply_current->length));
+        PyStructSequence_SET_ITEM(tmp, 2, Py_BuildValue("s", any_reply_current->data));
+        PyStructSequence_SET_ITEM(tmp, 3, PyInt_FromLong((long)any_reply_current->length));
         PyList_Append(dns_result, tmp);
         Py_DECREF(tmp);
         any_reply_current = any_reply_current->next;

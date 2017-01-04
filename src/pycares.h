@@ -259,6 +259,22 @@ static PyStructSequence_Desc ares_query_naptr_result_desc = {
     7
 };
 
+static PyTypeObject AresQueryANYResultType;
+
+static PyStructSequence_Field ares_query_any_result_fields[] = {
+    {"name", ""},
+    {"type", ""},
+    {"data", ""},
+    {"length", ""},
+    {NULL}
+};
+
+static PyStructSequence_Desc ares_query_any_result_desc = {
+    "ares_query_any_result",
+    NULL,
+    ares_query_any_result_fields,
+    4
+};
 
 /* Some helper stuff */
 

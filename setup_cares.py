@@ -39,6 +39,7 @@ cares_sources = [
     'deps/c-ares/src/ares_parse_soa_reply.c',
     'deps/c-ares/src/ares_parse_srv_reply.c',
     'deps/c-ares/src/ares_parse_txt_reply.c',
+    'deps/c-ares/src/ares_parse_any_reply.c',
     'deps/c-ares/src/ares_process.c',
     'deps/c-ares/src/ares_query.c',
     'deps/c-ares/src/ares_search.c',
